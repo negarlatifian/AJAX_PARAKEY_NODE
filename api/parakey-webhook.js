@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-// Load config from environment variables
+// Load config from environment variables//
 const AJAX_INTEGRATION_ID = process.env.AJAX_INTEGRATION_ID;
 const AJAX_API_KEY = process.env.AJAX_API_KEY;
 const AJAX_BASE_URL = process.env.AJAX_BASE_URL;
