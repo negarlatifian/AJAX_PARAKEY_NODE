@@ -1,10 +1,4 @@
-const express = require('express');
 const axios = require('axios');
-const bodyParser = require('body-parser');
-require('dotenv').config(); // Load variables from .env
-
-const app = express();
-app.use(bodyParser.json());
 
 // Load config from environment variables
 const AJAX_INTEGRATION_ID = process.env.AJAX_INTEGRATION_ID;
@@ -12,16 +6,28 @@ const AJAX_API_KEY = process.env.AJAX_API_KEY;
 const AJAX_BASE_URL = process.env.AJAX_BASE_URL;
 const PARAKEY_WEBHOOK_SECRET = process.env.PARAKEY_WEBHOOK_SECRET;
 
-// Endpoint that Parakey will POST to:
-app.post('/parakey-webhook', async (req, res) => {
+// Export the serverless function
+module.exports = async (req, res) => {
   try {
-    // If Parakey provides a secret for verification, verify it here:
+    if (req.method !== 'POST') {
+      res.status(405).send('Method Not Allowed');
+      return;
+    }
+
+    // Parse the request body
+    const eventData = req.body;
+
+    // If necessary, parse JSON body (Vercel uses body parsing automatically)
+    // If it's not working, you might need to parse it manually:
+    // const { json } = require('micro');
+    // const eventData = await json(req);
+
+    // Verify the secret, if applicable
     // const providedSecret = req.headers['x-parakey-secret'];
     // if (PARAKEY_WEBHOOK_SECRET && providedSecret !== PARAKEY_WEBHOOK_SECRET) {
-    //   return res.status(401).send('Unauthorized');
+    //   res.status(401).send('Unauthorized');
+    //   return;
     // }
-
-    const eventData = req.body;
 
     // Check if the event indicates a door unlock
     if (eventData.event === 'door_unlocked') {
@@ -36,7 +42,7 @@ app.post('/parakey-webhook', async (req, res) => {
     console.error('Error processing Parakey webhook:', error);
     res.status(500).send('Internal Server Error');
   }
-});
+};
 
 // Function to unarm the Ajax system
 async function unarmAjaxSystem() {
@@ -58,8 +64,3 @@ async function unarmAjaxSystem() {
 
   return response.data;
 }
-
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
