@@ -24,7 +24,6 @@ function validateEnvironmentVariables() {
     );
   }
 }
-
 // Function to unarm the Ajax system
 async function unarmAjaxSystem() {
   try {
